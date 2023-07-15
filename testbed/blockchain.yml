@@ -37,6 +37,8 @@ services:
 
 networks:
   default:
-    external:
-      name: bflnet
+    # Fix: https://github.com/docker/compose-cli/issues/1856#issuecomment-870627818
+    # external:
+    name: bflnet
+    external: true
 

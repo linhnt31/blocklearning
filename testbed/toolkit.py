@@ -14,7 +14,7 @@ def cli():
 @cli.command()
 @click.option('-d', '--dir', default='..', help='project base directory')
 def build_images(dir):
-  os.system("docker pull ethereum/client-go:v1.10.16")
+  os.system("docker pull ethereum/client-go:v1.11.6")
 
   bases = {
     'poa': 'ethereum/client-go:v1.10.16',
@@ -50,6 +50,9 @@ def collect_logs(dir):
 @click.option('-b', '--balance', default='1000000000000000000000', help='balance to add to each account')
 @click.option('-d', '--data-dir', default=geth.default_datadir, help='ethereum data directory path')
 def update_genesis(genesis, balance, data_dir):
+  """
+  After generating the accounts, the genesis files needs to be generated with the new accounts accounts in order to boot the network with 100 ETH in each of the accounts.
+  """
   for consensus in ['poa', 'pow', 'qbft']:
     src = os.path.join(genesis, f'genesis_{consensus}.json')
     dst = os.path.join(data_dir, f'genesis_{consensus}.json')
@@ -61,7 +64,7 @@ def update_genesis(genesis, balance, data_dir):
 @click.option('-d', '--data-dir', default=geth.default_datadir, help='ethereum data directory path')
 @click.option('-pl', '--password-length', type=click.INT, default=geth.default_password_length, help='password length')
 def generate_accounts(miners, trainers, data_dir, password_length):
-  shutil.rmtree(data_dir, ignore_errors=True)
+  shutil.rmtree(data_dir, ignore_errors=True) # is used to delete an entire directory tree
   geth.generate_accounts(
     miners,
     trainers,
