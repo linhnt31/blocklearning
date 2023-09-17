@@ -22,4 +22,4 @@ def get_enodes(network):
 def connect_all(enodes):
   for container in enodes:
     for peer in enodes:
-      run_and_output(f'docker exec -it {container} geth --exec "admin.addPeer(\'{enodes[peer]}\')" attach')
+      run_and_output(f'docker exec -it {container} geth attach --exec "admin.addPeer(\'{enodes[peer]}\')"')

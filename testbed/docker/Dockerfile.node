@@ -4,7 +4,7 @@ FROM $BASE
 
 RUN apk update && apk add jq bind-tools
 
-ARG GENESIS='genesis_pow.json'
+ARG GENESIS='genesis_poa.json'
 
 COPY testbed/docker/eth_run_miner.sh /run_miner.sh
 COPY testbed/docker/eth_run_owner.sh /run_owner.sh

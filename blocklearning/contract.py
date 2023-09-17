@@ -5,15 +5,16 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 def get_web3(provider, abi_file, account, passphrase, contract):
+  # This provider handles interactions with an HTTP or HTTPS based JSON-RPC server.
   provider = Web3.HTTPProvider(provider)
-  abi = get_abi(abi_file)
-
   web3 = Web3(provider)
+
+  abi = get_abi(abi_file)
   web3.middleware_onion.inject(geth_poa_middleware, layer=0)
   web3.geth.personal.unlock_account(account, passphrase, 600)
 
   contract = web3.eth.contract(address=contract, abi=abi)
-  defaultOpts = { 'from': account }
+  defaultOpts = {'from': account}
 
   return (web3, contract, defaultOpts)
 

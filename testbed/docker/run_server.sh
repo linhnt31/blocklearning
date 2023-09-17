@@ -19,7 +19,8 @@ python run_server.py \
   --passphrase $PASSWORD \
   --contract $CONTRACT \
   --log /root/log.log \
-  --val /root/dataset/owner_val.npz \
+  # --val /root/dataset/owner_val.npz \
+  --val /root/dataset/test/$((INDEX-1)).npz \
   --scoring $SCORING
 
 

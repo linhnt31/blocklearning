@@ -26,10 +26,10 @@ This directory contains all the necessary code to run experiments using the [`bl
 
 ### Generate Ethereum Accounts
 
-Generate the accounts that will be used on the network. To generate 5 accounts for miners (or validators) and 10 for trainers, run:
+Generate the accounts that will be used on the network. To generate 1 account for owner (default), 5 accounts for miners (or validators) and 10 for trainers, run:
 
 ```bash
-python3 toolkit.py generate-accounts 10 25
+python3 toolkit.py generate_accounts 5 10
 ```
 
 The files in `ethereum/datadir` are as follows:
@@ -38,23 +38,30 @@ The files in `ethereum/datadir` are as follows:
 - `geth/nodekey_owner` is the node key that will be given to the "owner" RPC endpoint for our Ethereum network.
 - `geth/nodekey_{i}` is the node key that will be given to the i-th Ethereum miner.
 - `geth/static-nodes.json` includes the addresses that will be added as static peers to our nodes.
-- `accounts.json` is the account information and password.
+- `accounts.json` is the account **address** and **password**.
 - `miners.json` has the public addresses generated from the private key of the miners `nodekey`. This is important for some consensus protocol genesis.
+- By default, your accounts in Geth are **locked**, which means that you can't send transactions from them. You need to unlock an account in order to send transactions from it through Geth directly or via RPC (though web3 does not support this). In order to unlock an account, ***you'll need to provide the password, which is used to decrypt the private key associated with your account, hence allowing you to sign transactions***.[Answered by Zack Coburn](https://ethereum.stackexchange.com/a/4159/123762)
+
+- Every account is defined by a pair of keys, a private key and public key. ***Accounts are indexed by their address which is derived/hashed from the public key by taking the last 20 bytes***. Every private key/address pair is encoded in a keyfile.
+
+- **Bootnode** and **enode**:
+
++ [When a new node joins the Ethereum network it needs to connect to nodes that are already on the network in order to then discover new peers. These entry points into the Ethereum network are called bootnodes. Note that bootnodes are not the same as static nodes. Static nodes are called over and over again, whereas bootnodes are only called upon if there are not enough peers to connect to and a node needs to bootstrap some new connections.](https://ethereum.org/en/developers/docs/nodes-and-clients/bootnodes/)
 
 ### Update Genesis with Accounts
 
 After generating the accounts, the genesis files needs to be generated with the new accounts accounts in order to boot the network with 100 ETH in each of the accounts. To do so, run:
 
 ```bash
-python3 toolkit.py update-genesis
+python3 toolkit.py update_genesis
 ```
 
 ### Build Docker Images
 
-Several Docker images are used to run the Ethereum blockchain. To build then, run:
+Several Docker images are used to run the Ethereum blockchain. Each container includes essential programs for running miners, trainers and federated learning. To build then, run:
 
 ```bash
-python3 toolkit.py build-images
+python3 toolkit.py build_images
 ```
 
 ### Create Docker Network
@@ -71,37 +78,58 @@ docker network create \
 For Docker compose, use:
 
 ```bash
-CONSENSUS=poa MINERS=10 docker compose -f blockchain.yml -p bfl up
+CONSENSUS=poa MINERS=5 docker compose -f blockchain.yml -p bfl up
 ```
 
-Where `CONSENSUS` = `poa|qbft|pow`.
+Where 
 
++ `CONSENSUS` = `poa|qbft|pow`
+
++ **deploy.replicas**: specifies the number of containers that should be running at any given time.
+
+### Useful command lines to check the Ethereum network working correctly
+
+```python
+# to mute logs
++ geth attach http://127.0.0.1:8545 [preferred]
++ geth <other flags> console 2> /dev/null
+> net.peerCount
+> admin.peers
+# to save logs to file
+geth <other flags> console --verbosity 3 2> geth-logs.log
+```
 ### Connect Peers
 
-Unfortunately, peer discovery [doesn't work with private networks](https://ethereum.stackexchange.com/questions/121380/private-network-nodes-cant-find-peers). Not even if we use a bootstrap node. Thus, we need to connect the peers to each other manually.
+Unfortunately, peer discovery [doesn't work with private networks](https://ethereum.stackexchange.com/questions/121380/private-network-nodes-cant-find-peers) and [this link](https://ethereum.stackexchange.com/questions/8712/automatic-peer-discovery-in-a-private-blockchain). Not even if we use a bootstrap node. Thus, we need to connect the peers to each other manually.
 
 ```bash
-python3 toolkit.py connect-peers <network>
+python3 toolkit.py connect_peers <network>
 ```
 
-Where `<network>` is the ID of the Docker network where the containers are running. You can check that by running `docker network ls` and looking for `priv-eth-net`. If no network is passed, the script will try to infer the correct network.
+Where `<network>` is the ID of the Docker network where the containers are running. You can check that by running `docker network ls` and looking for `bflnet`. If no network is passed, the script will try to infer the correct network.
 
 ### Deploy the Contract
 
 The contract deployment script fetches the account to use from `ethereum/datadir/accounts.json` and uses the first account (index 0).
 
 ```bash
-python3 toolkit.py deploy-contract
+python3 toolkit.py deploy_contract
 ```
 
 ### Launch ML Containers
 
 ```bash
-CONTRACT=0x8C3CBC8C31e5171C19d8a26af55E0db284Ae9b4B \
-  DATASET=mnist MINERS=10 AGGREGATORS=10 SCORERS=0 TRAINERS=25 \
+CONTRACT=0x9a26730FD9893c6273c4F97c626fb752F6B8fad8 \
+  DATASET=mnist MINERS=2 AGGREGATORS=1 SERVERS=2 SCORERS=0 CLIENTS=2 \
   SCORING="none" ABI=NoScore \
   docker compose -f ml.yml -p bfl-ml up
 ```
+
+where 
+
+- `-p` command line: specifies a project name
+
+- `up`: creates and starts containers
 
 ### Collect Statistics
 

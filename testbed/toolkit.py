@@ -5,6 +5,7 @@ import utilities.processes as proc
 import utilities.geth as geth
 import utilities.json as ujson
 import utilities.docker as docker
+# https://web3js.readthedocs.io/en/v1.10.0/: web3.js is a collection of libraries that allow you to interact with a local or remote ethereum node using HTTP, IPC or WebSocket.
 from web3 import Web3
 
 @click.group()
@@ -14,7 +15,7 @@ def cli():
 @cli.command()
 @click.option('-d', '--dir', default='..', help='project base directory')
 def build_images(dir):
-  os.system("docker pull ethereum/client-go:v1.11.6")
+  os.system("docker pull ethereum/client-go:v1.10.16")
 
   bases = {
     'poa': 'ethereum/client-go:v1.10.16',
@@ -81,8 +82,12 @@ def deploy_contract(data_dir, provider):
   account_password = accounts['owner'][account_address]
 
   web3 = Web3(Web3.HTTPProvider(provider))
-
+  # Will convert an upper or lowercase Ethereum address to a checksum address.
+  # A checksum address: means some letters are uppercase and some are lowercase.
+  # is used to prove its correctness.
   address = Web3.toChecksumAddress(account_address)
+  # https://web3py.readthedocs.io/en/stable/web3.geth.html#web3.geth.personal.unlock_account
+  # Signs data using a specific account.
   web3.geth.personal.unlock_account(address, account_password, 600)
 
   os.system("cd .. && truffle migrate --reset")

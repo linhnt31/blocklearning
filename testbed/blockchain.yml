@@ -1,10 +1,10 @@
-version: '3.7'
+version: '3.8'
 
 services:
   geth-rpc-endpoint:
     hostname: geth-rpc-endpoint
     env_file:
-      - ethereum/.env
+      - .env
     image: geth-node-$CONSENSUS
     entrypoint: /run_owner.sh
     command:
@@ -22,7 +22,7 @@ services:
     deploy:
       replicas: $MINERS
     env_file:
-      - ethereum/.env
+      - .env
     image: geth-node-$CONSENSUS
     entrypoint: /run_miner.sh
     command:
@@ -34,11 +34,15 @@ services:
       --http.api="eth,web3,net,admin,personal"
       --http.corsdomain="*"
       --netrestrict="172.16.254.0/20"
-
+      
 networks:
   default:
     # Fix: https://github.com/docker/compose-cli/issues/1856#issuecomment-870627818
     # external:
     name: bflnet
     external: true
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.16.254.0/20
 

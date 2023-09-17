@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
+// Abstract Contract is one which contains at least one function without any implementation. Such a contract is used as a base contract.
+// The *abstract* and *virtual* keywords signify that the associated code will be implemented or overridden elsewhere in the code. 
 abstract contract Base {
    struct Update {
     uint trainingAccuracy;
@@ -9,6 +11,7 @@ abstract contract Base {
     string weights;
   }
 
+// *Enums* restrict a variable to have one of only a few predefined values.
   enum RoundPhase {
     Stopped,
     WaitingForUpdates,

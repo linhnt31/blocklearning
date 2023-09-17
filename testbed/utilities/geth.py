@@ -66,14 +66,13 @@ def generate_keys(nodekey, host, data_dir):
 
   pubkey = run_and_output(f'bootnode -nodekey {nodekey_file} -writeaddress').strip() #This nodekey_file is used to generate publickey of a bootnode
   enode = f'enode://{pubkey}@{host}:30303'
-  address = account.address # Return the public key or address of the node
+
+
+  address = account.address # Return the address of the node
   return address, enode
 
 def generate_account(password, data_dir):
-  """
-  Generate the account for an user
-  """
-  with tempfile.NamedTemporaryFile() as fp: #This module creates temporary files and directories.
+  with tempfile.NamedTemporaryFile() as fp:
     fp.write(password.encode())
     fp.seek(0)
 
@@ -108,9 +107,11 @@ def generate_accounts(miners, clients, data_dir, password_length):
   # each miner will be a bootnode
   for i in range(0, miners):
     password = get_random_string(password_length)
+    # *generate_account* func returns the address of the account
     address = generate_account(password, data_dir)
     accounts['miners'][address] = password
 
+    # *generate_keys* func returns *address and enode* values
     address, enode = generate_keys(f'nodekey_{i}', f'bfl-geth-miner-{i+1}', data_dir)
     static_nodes.append(enode)
     miner_addresses.append(address)
@@ -122,4 +123,4 @@ def generate_accounts(miners, clients, data_dir, password_length):
 
   save_json(os.path.join(data_dir, 'accounts.json'), accounts)
   save_json(os.path.join(data_dir, 'miners.json'), miner_addresses)
-  save_json(os.path.join(data_dir, 'geth', 'static-nodes.json'), static_nodes) #Data owner
+  save_json(os.path.join(data_dir, 'geth', 'static-nodes.json'), static_nodes)

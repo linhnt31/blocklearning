@@ -22,4 +22,3 @@ python run_client.py \
   --train /root/dataset/train/$((INDEX-1)).npz \
   --test /root/dataset/test/$((INDEX-1)).npz \
   --scoring $SCORING
-

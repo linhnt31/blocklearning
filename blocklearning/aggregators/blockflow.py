@@ -21,10 +21,12 @@ class BlockFlowAggregator():
     # Also s[a][k] is the score given by a to k, so the inverse of scores.
     s = [[int_to_float(scores[k][a]) for k in range(N)] for a in range(N)]
 
+    # m is the median score given by scorers
     m = [0 for _ in trainers]
     for k in range(N):
       m[k] = np.median([s[a][k] for a in range(N)])
 
+    # m_ is the scaled accurate evaluation score: a score / maximum score
     m_ = [0 for _ in trainers]
     for k in range(N):
       m_[k] = m[k] / np.max(m)
