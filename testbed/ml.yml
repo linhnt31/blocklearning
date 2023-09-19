@@ -12,6 +12,7 @@ services:
       # `replicas`: specifies the number of containers that should be running at any given time.
       replicas: $SERVERS
     environment:
+      # - IPFS_API=/ip4/host.docker.internal/tcp/5001
       - IPFS_API=/dns/host.docker.internal/tcp/5001
       - CONTRACT=$CONTRACT
       - SCORING=$SCORING
@@ -21,8 +22,10 @@ services:
       - './datasets/$DATASET/$CLIENTS:/root/dataset'
       # - './datasets/$DATASET/$SERVERS:/root/dataset'
       - ../build/contracts/$ABI.json:/root/abi.json
+    # Connect to local host from the Docker container: https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
+    # https://stackoverflow.com/questions/72827527/what-is-running-on-host-docker-internal-host#:~:text=In%20short%3A%20host.,inside%20a%20container%20at%20host.
     extra_hosts:
-    - "host.docker.internal:host-gateway"
+      - "host.docker.internal:host-gateway"
 
   client:
     hostname: client
@@ -34,6 +37,7 @@ services:
       replicas: $CLIENTS
     environment:
       - IPFS_API=/dns/host.docker.internal/tcp/5001
+      # - IPFS_API=/ip4/host.docker.internal/tcp/5001
       - CONTRACT=$CONTRACT
       - SCORING=$SCORING
       - MINERS=$MINERS
@@ -41,7 +45,7 @@ services:
       - './datasets/$DATASET/$CLIENTS:/root/dataset'
       - ../build/contracts/$ABI.json:/root/abi.json
     extra_hosts:
-    - "host.docker.internal:host-gateway"
+      - "host.docker.internal:host-gateway"
 
 networks:
   default:

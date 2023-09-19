@@ -11,6 +11,17 @@ if [ "$PRVINDEX" -eq "0" ]; then
 fi
 PROVIDER=$(dig bfl-geth-miner-$PRVINDEX +short)
 
+# python run_server.py \
+#   --provider "http://$PROVIDER:8545" \
+#   --abi /root/abi.json \
+#   --ipfs $IPFS_API \
+#   --account $ACCOUNT \
+#   --passphrase $PASSWORD \
+#   --contract $CONTRACT \
+#   --log /root/log.log \
+#   --val /root/dataset/test/$((INDEX-1)).npz \
+#   --scoring $SCORING
+
 python run_server.py \
   --provider "http://$PROVIDER:8545" \
   --abi /root/abi.json \
@@ -19,10 +30,8 @@ python run_server.py \
   --passphrase $PASSWORD \
   --contract $CONTRACT \
   --log /root/log.log \
-  # --val /root/dataset/owner_val.npz \
-  --val /root/dataset/test/$((INDEX-1)).npz \
+  --val /root/dataset/test/0.npz \
   --scoring $SCORING
-
 
 # Use the following flag for a private dataset
 # --val /root/dataset/test/$((INDEX-1)).npz 

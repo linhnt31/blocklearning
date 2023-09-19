@@ -119,7 +119,7 @@ python3 toolkit.py deploy_contract
 ### Launch ML Containers
 
 ```bash
-CONTRACT=0x9a26730FD9893c6273c4F97c626fb752F6B8fad8 \
+CONTRACT=0x69b583f4aBf5766c8B3D5a4d284aa6c17F862Ff2 \
   DATASET=mnist MINERS=2 AGGREGATORS=1 SERVERS=2 SCORERS=0 CLIENTS=2 \
   SCORING="none" ABI=NoScore \
   docker compose -f ml.yml -p bfl-ml up
